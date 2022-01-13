@@ -97,8 +97,6 @@ FLAG(string,
      "",
      "Field used to specify the host_identifier when set to \"specified\"");
 
-FLAG(bool, utc, true, "Convert all UNIX times to UTC");
-
 namespace {
 
 const std::vector<std::string> kPlaceholderHardwareUUIDList{
@@ -310,6 +308,11 @@ Status checkStalePid(const std::string& content) {
   try {
     pid = boost::lexical_cast<int>(content);
   } catch (const boost::bad_lexical_cast& /* e */) {
+    return Status::success();
+  }
+
+  // The pid points to our own process, ignore
+  if (pid == PlatformProcess::getCurrentPid()) {
     return Status::success();
   }
 
